@@ -40,31 +40,38 @@ def search_book():
 # Attempts to checkout status of the book with the cooresponding ID parameter, printing a failure message otherwise or in the case of invalid ID
 def checkout_book(ID):
     # Because we're accepting user input, we have to make sure the book actually exists
-    book_to_checkout = None
-    for book in library_books:
-        if book["id"] == ID:
-            book_to_checkout = book
-            break
-    if book_to_checkout == None:
-        print(f"Book with ID {ID} does not exist")
+    book = check_valid_id(ID)
+    if (book == None):
+        print(f"There is no book with ID: {ID}")
+        return -1
 
     # If the book is available, we check it out. Otherwise, we print that it's already been checked out
-    if book_to_checkout["available"]:
+    if book["available"]:
         due_date = (datetime.today() + timedelta(days=14)).strftime("%Y-%m-%d")
-        book_to_checkout["due_date"] = due_date
-        book_to_checkout["available"] = False
-        book_to_checkout["checkouts"] += 1
-        print(book)
+        book["due_date"] = due_date
+        book["available"] = False
+        book["checkouts"] += 1
     else:
-        print(f"{book_to_checkout} is already checked out")
+        print(f"{book} is already checked out")
 
 # -------- Level 4 --------
 # TODO: Create a function to return a book by ID
 # Set its availability to True and clear the due_date
+def return_book(ID):
+    book = check_valid_id(ID)
+    if (book == None):
+        print(f"There is no book with ID: {ID}")
+        return -1
+    
+    book["available"] = True
+    book["due_date"] = None
 
 # TODO: Create a function to list all overdue books
 # A book is overdue if its due_date is before today AND it is still checked out
-
+def list_overdue_books():
+    for book in library_books:
+        if not book["available"]: # and due_date - current_date < 0
+            print(book)
 
 # -------- Level 5 --------
 # TODO: Convert your data into a Book class with methods like checkout() and return_book()
@@ -78,6 +85,20 @@ def checkout_book(ID):
 # - Save/load catalog to file (CSV or JSON)
 # - Anything else you want to build on top of the system!
 
+# -------- Helper Functions --------
+
+# If a book with the id {ID} exists, we return the book. Otherwise, return None
+def check_valid_id(ID):
+    book_to_checkout = None
+    for book in library_books:
+        if book["id"] == ID:
+            book_to_checkout = book
+            return book_to_checkout
+    if book_to_checkout == None:
+        return None
+
+
 if __name__ == "__main__":
     # You can use this space to test your functions
-    checkout_book("B2")
+    return_book("B8")
+    print(library_books[7])
