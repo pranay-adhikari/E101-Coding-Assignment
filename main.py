@@ -7,24 +7,27 @@ from datetime import datetime, timedelta
 
 # Prints the title, ID, and author of all books available for checkout
 def available_books():
-    print("Available books: ")
-    for book in library_books:
-        if book["available"]: 
-            print(f'Title: {book["title"]}, ID: {book["id"]}, Author: {book["author"]}')
+    available_books = [book for book in library_books if book["available"]]
+    if not available_books:
+        print("There are currently no available books")
+    else:
+        print("Available books:")
+        for book in available_books:
+            print(f'ID: {book["id"]}, Title: {book["title"]}, Author: {book["author"]}')
 
 # -------- Level 2 --------
 # TODO: Create a function to search books by author OR genre
 # Search should be case-insensitive
 # Return a list of matching books
 
-# Loops through the books returning a list of all books with author or genre matches. The search query is case-insensitive
+# Loops through the books returning a list of all books with author or genre matches. The search query is case-insensitive, and allows partial inputs
 def search_book():
     matching_books = []
     query = input("Search for a book by author or genre: ").strip().lower()
     for book in library_books:
         author = book["author"].lower()
         genre = book["genre"].lower()
-        if query == author or query == genre:
+        if query in author or query in genre:
             matching_books.append(book)
     return matching_books
 
@@ -41,7 +44,7 @@ def search_book():
 def checkout_book(ID):
     # Because we're accepting user input, we have to make sure the book actually exists
     book = check_valid_id(ID)
-    if (book == None):
+    if book is None:
         print(f"There is no book with ID: {ID}")
         return -1
 
@@ -59,7 +62,7 @@ def checkout_book(ID):
 # Set its availability to True and clear the due_date
 def return_book(ID):
     book = check_valid_id(ID)
-    if (book == None):
+    if book is None:
         print(f"There is no book with ID: {ID}")
         return -1
     
@@ -69,9 +72,12 @@ def return_book(ID):
 # TODO: Create a function to list all overdue books
 # A book is overdue if its due_date is before today AND it is still checked out
 def list_overdue_books():
+    today = datetime.today().date()
     for book in library_books:
-        if not book["available"]: # and due_date - current_date < 0
-            print(book)
+        if not book["available"]:
+            due_date = datetime.strptime(book["due_date"], "%Y-%m-%d").date()
+            if due_date < today:
+                print(book)
 
 # -------- Level 5 --------
 # TODO: Convert your data into a Book class with methods like checkout() and return_book()
@@ -100,5 +106,4 @@ def check_valid_id(ID):
 
 if __name__ == "__main__":
     # You can use this space to test your functions
-    return_book("B8")
-    print(library_books[7])
+    pass
