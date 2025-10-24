@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 # Prints the title, ID, and author of all books available for checkout
 def available_books():
+    # I had to use list comprehension to convert the generator object to a list so I could check if the list was empty or not
     available_books = [book for book in library_books if book["available"]]
     if not available_books:
         print("There are currently no available books")
@@ -54,8 +55,9 @@ def checkout_book(ID):
         book["due_date"] = due_date
         book["available"] = False
         book["checkouts"] += 1
+        print(f"You've checked out \"{book["title"]}\". Its due date is {book["due_date"]}.")
     else:
-        print(f"{book} is already checked out")
+        print(f"\"{book["title"]}\" is already checked out")
 
 # -------- Level 4 --------
 # TODO: Create a function to return a book by ID
@@ -65,9 +67,12 @@ def return_book(ID):
     if book is None:
         print(f"There is no book with ID: {ID}")
         return -1
-    
-    book["available"] = True
-    book["due_date"] = None
+    if book["available"]:
+        print(f"\"{book["title"]}\" is not checked out.")
+    else:
+        book["available"] = True
+        book["due_date"] = None
+        print(f"\"{book["title"]}\" successfully returned.")
 
 # TODO: Create a function to list all overdue books
 # A book is overdue if its due_date is before today AND it is still checked out
@@ -82,6 +87,26 @@ def list_overdue_books():
 # -------- Level 5 --------
 # TODO: Convert your data into a Book class with methods like checkout() and return_book()
 # TODO: Add a simple menu that allows the user to choose different options like view, search, checkout, return, etc.
+def menu():
+    choice = input("What would you like to do? Enter your choice:\n1: View all books\n2: Search for a book\n3: Checkout a book\n4: Return a book\n5: Exit\n")
+    match choice:
+        case "1":
+            checkout_book()
+        case "2":
+            search_book()
+        case "3":
+            ID = input("ID of the book to checkout: ")
+            checkout_book(ID)
+        case "4":
+            ID = input("ID of the book to return: ")
+            return_book(ID)
+        case "5":
+            print("Goodbye!")
+            return -1
+        
+        # For handling default case
+        case _:
+            print("Not a valid option")
 
 # -------- Optional Advanced Features --------
 # You can implement these to move into Tier 4:
@@ -106,4 +131,4 @@ def check_valid_id(ID):
 
 if __name__ == "__main__":
     # You can use this space to test your functions
-    pass
+    menu()
