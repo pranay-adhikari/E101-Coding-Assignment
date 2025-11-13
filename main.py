@@ -1,6 +1,7 @@
 from library_books import library_books
 from datetime import datetime, timedelta
 import json
+import csv
 
 # Menu will loop until user exits
 menu_loop = True
@@ -126,14 +127,16 @@ class Book:
             for book in by_checkouts[:3]:
                 print(book)
     
-    # Exports catalog to json file
+    # Export catalog to .json or .csv
     @staticmethod
-    def export_to_json():
-        books_data = Book.library_to_dictionaries()
-        file_name = "library_books.json"
-        with open(file_name, 'w') as json_file:
-            json.dump(books_data, json_file, indent=4)
-        
+    def export():
+        choice = input("Export to JSON or CSV?\n1: JSON\n2: CSV\n").strip()
+        if choice == "1":
+            Book.export_to_json()
+        elif choice == "2":
+            Book.export_to_csv()
+        else:
+            print("Not a valid choice")
 
     # -------- Helper Functions --------
     # If a book with the id {id} exists, we return the book. Otherwise, false
@@ -148,7 +151,7 @@ class Book:
     def library_to_dictionaries():
         library_list = []
         for book in Book.library:
-            book_dict = {"id":book.id, "title":book.title, "author":book.author, "available":book.available, "due_date":book.due_date, "checkouts":book.checkouts}
+            book_dict = {"id":book.id, "title":book.title, "author":book.author, "genre":book.genre, "available":book.available, "due_date":book.due_date, "checkouts":book.checkouts}
             library_list.append(book_dict)
         return library_list
     
@@ -159,6 +162,32 @@ class Book:
             if book.id == id:
                 return False
         return True
+    
+    # Exports catalog to json file
+    @staticmethod
+    def export_to_json():
+        books_data = Book.library_to_dictionaries()
+        file_name = "library_books.json"
+        with open(file_name, 'w') as json_file:
+            json.dump(books_data, json_file, indent=4)
+        print(f"Successfully exported catalog to {file_name}")
+    
+    # Exports catalog to csv file
+    @staticmethod
+    def export_to_csv():
+        # Writing straight to csv will remove 'None' values, so we must convert them to strings
+        books_data = Book.library_to_dictionaries()
+        for book in books_data:
+            if book["due_date"] is None:
+                book["due_date"] = "None"
+
+        file_name = "library_books.csv"
+        field_names = ["id", "title", "author", "genre", "available", "due_date", "checkouts"]
+        with open(file_name, 'w', newline='') as csv_file:
+            writer = csv.DictWriter(csv_file, fieldnames=field_names)
+            writer.writeheader()
+            writer.writerows(books_data)
+        print(f"Successfully exported catalog to {file_name}")
 
     def __str__(self):
         return f"ID: {self.id}, Title: {self.title}, Author: {self.author}, Genre: {self.genre}, Available: {self.available}, Checkouts: {self.checkouts}"
@@ -168,7 +197,7 @@ class Book:
 # TODO: Add a simple menu that allows the user to choose different options like view, search, checkout, return, etc.
 def menu():
     print('-------------------------------')
-    choice = input("What would you like to do? Enter your choice:\n1: View available books\n2: Search for a book\n3: Checkout a book\n4: Return a book\n5: View most checked out books\n6: List overdue books\n7: Add a book\n8: Remove a book\n9: Export catalog to JSON\n0: Exit\n")
+    choice = input("What would you like to do? Enter your choice:\n1: View available books\n2: Search for a book\n3: Checkout a book\n4: Return a book\n5: View most checked out books\n6: List overdue books\n7: Add a book\n8: Remove a book\n9: Export catalog to file\n0: Exit\n").strip()
     print()
     match choice:
         case "1":
@@ -181,10 +210,10 @@ def menu():
             if not search_results:
                 print("No books match your search")
         case "3":
-            id = input("ID of the book to checkout: ")
+            id = input("ID of the book to checkout: ").strip()
             Book.checkout_book(id)
         case "4":
-            id = input("ID of the book to return: ")
+            id = input("ID of the book to return: ").strip()
             Book.return_book(id)
         case "5":
             Book.most_checked_out()
@@ -195,7 +224,7 @@ def menu():
         case "8":
             delete_book()
         case "9":
-            Book.export_to_json()
+            Book.export()
         case "0":
             global menu_loop
             menu_loop = False
@@ -215,14 +244,14 @@ def add_book():
     if not Book.unique_id(id):
         print("Not a unique id")
         return -1
-    title = input("Title: ")
-    author = input("Author: ")
-    genre = input("Genre: ")
+    title = input("Title: ").strip()
+    author = input("Author: ").strip()
+    genre = input("Genre: ").strip()
     Book(id=id, title=title, author=author, genre=genre, available=True, due_date=None, checkouts=0)
 
 # Deletes a book from the catalog
 def delete_book():
-    id = input("ID: ")
+    id = input("ID: ").strip()
     book = Book.get_book(id)
     if book is None:
         print("Invalid ID")
