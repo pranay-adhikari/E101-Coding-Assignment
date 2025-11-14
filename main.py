@@ -1,3 +1,18 @@
+"""
+Python documentation references:
+
+- datetime module: https://docs.python.org/3/library/datetime.html
+- timedelta class: https://docs.python.org/3/library/datetime.html#timedelta-objects
+- json module: https://docs.python.org/3/library/json.html
+- csv module: https://docs.python.org/3/library/csv.html
+- list comprehensions: https://docs.python.org/3/tutorial/datastructures.html#list-comprehensions
+- @staticmethod signature: https://docs.python.org/3/library/functions.html#staticmethod
+- lambda functions: https://docs.python.org/3/tutorial/controlflow.html#lambda-expressions
+- exception handling: https://docs.python.org/3/tutorial/errors.html#handling-exceptions
+
+I used AI (claude.ai) to help me figure out the syntax for parsing a string time into a datetime object
+"""
+
 from library_books import library_books
 from datetime import datetime, timedelta
 import json
