@@ -105,7 +105,7 @@ class Book:
         today = datetime.today().date()
         overdue_books = []
         for book in Book.library:
-            if not book.available:
+            if not book.available and book.due_date is not None:
                 due_date = datetime.strptime(book.due_date, "%Y-%m-%d").date()
                 if due_date < today:
                     overdue_books.append(book)
@@ -130,7 +130,7 @@ class Book:
     # Export catalog to .json or .csv
     @staticmethod
     def export():
-        choice = input("Export to JSON or CSV?\n1: JSON\n2: CSV\n").strip()
+        choice = input("Export to JSON or CSV?\n1: JSON\n2: CSV\n\n").strip()
         if choice == "1":
             Book.export_to_json()
         elif choice == "2":
@@ -167,10 +167,10 @@ class Book:
     @staticmethod
     def export_to_json():
         books_data = Book.library_to_dictionaries()
-        file_name = "library_books.json"
-        with open(file_name, 'w') as json_file:
+        filename = "library_books.json"
+        with open(filename, 'w') as json_file:
             json.dump(books_data, json_file, indent=4)
-        print(f"Successfully exported catalog to {file_name}")
+        print(f"Successfully exported catalog to {filename}")
     
     # Exports catalog to csv file
     @staticmethod
@@ -181,13 +181,13 @@ class Book:
             if book["due_date"] is None:
                 book["due_date"] = "None"
 
-        file_name = "library_books.csv"
+        filename = "library_books.csv"
         field_names = ["id", "title", "author", "genre", "available", "due_date", "checkouts"]
-        with open(file_name, 'w', newline='') as csv_file:
+        with open(filename, 'w', newline='') as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=field_names)
             writer.writeheader()
             writer.writerows(books_data)
-        print(f"Successfully exported catalog to {file_name}")
+        print(f"Successfully exported catalog to {filename}")
 
     def __str__(self):
         return f"ID: {self.id}, Title: {self.title}, Author: {self.author}, Genre: {self.genre}, Available: {self.available}, Checkouts: {self.checkouts}"
@@ -196,8 +196,9 @@ class Book:
 # TODO: Convert your data into a Book class with methods like checkout() and return_book()
 # TODO: Add a simple menu that allows the user to choose different options like view, search, checkout, return, etc.
 def menu():
+    global menu_loop
     print('-------------------------------')
-    choice = input("What would you like to do? Enter your choice:\n1: View available books\n2: Search for a book\n3: Checkout a book\n4: Return a book\n5: View most checked out books\n6: List overdue books\n7: Add a book\n8: Remove a book\n9: Export catalog to file\n0: Exit\n").strip()
+    choice = input("What would you like to do? Enter your choice:\n1: View available books\n2: Search for a book\n3: Checkout a book\n4: Return a book\n5: View most checked out books\n6: List overdue books\n7: Add a book\n8: Remove a book\n9: Export catalog to file\n0: Exit\n\n").strip()
     print()
     match choice:
         case "1":
@@ -226,7 +227,6 @@ def menu():
         case "9":
             Book.export()
         case "0":
-            global menu_loop
             menu_loop = False
             print("Goodbye!")
         
